@@ -1,0 +1,70 @@
+apply plugin: 'java'
+apply plugin: 'idea'
+//apply plugin: 'application'
+
+group = 'vert.x3'
+version = '1.0'
+
+targetCompatibility = 1.8
+sourceCompatibility = 1.8
+
+ext {
+    vertxVersion = '3.3.3'
+}
+
+//mainClassName = 'org.example.HelloWorldHttpServer'
+
+// In this section you declare where to find the dependencies of your project
+repositories {
+    // Use 'jcenter' for resolving your dependencies.
+    // You can declare any Maven/Ivy/file repository here.
+    jcenter()
+}
+
+// In this section you declare the dependencies for your production and test code
+dependencies {
+    compile project(':gen')
+
+}
+
+//会自动生成目录
+sourceSets {
+    main {
+        java {
+            //添加自动生成的代码到源码路径中
+            srcDirs += 'src/main/generated'
+        }
+    }
+}
+
+
+//$ cd xxx\src\main
+//$ javac -cp xxx\gen\build\libs\gen-1.0.jar -d generated   java\org\example\apt\HelloMessage.java
+
+task annotationProcessing(type: JavaCompile, group: 'build') {
+    println "annotationProcessing-destinationDir:"+destinationDir//null
+
+    source = sourceSets.main.java
+    classpath = configurations.compile
+    //输出目录,相当与-d 参数
+    destinationDir = project.file('src/main/generated')//setDestinationDir(project.file('src/main/generated'))
+    println "annotationProcessing-destinationDir:"+destinationDir//xxx\apt-examples\test\src\main\generated
+    //javac options
+    options.compilerArgs = [
+                "-proc:only",
+//指定Processor,这里使用默认的搜索方式(META-INF/services)
+//            "-processor", "org.example.apt.FactoryGenProcessor",
+                "-AenableProxyGen=yes"
+    ]
+
+}
+
+compileJava {
+    println "compileJava-destinationDir:"+destinationDir//xxx\apt-examples\test\build\classes\main
+    dependsOn annotationProcessing
+}
+
+jar{
+    println "jar-destinationDir:"+destinationDir //xxx\apt-examples\test\build\libs
+}
+

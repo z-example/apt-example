@@ -1,0 +1,45 @@
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'application'
+
+group = 'vert.x3'
+version = '1.0'
+
+targetCompatibility = 1.8
+sourceCompatibility = 1.8
+
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+configurations {
+    all*.exclude group: 'org.slf4j', module:'slf4j-simple'
+}
+ext {
+    vertxVersion = '3.3.3'
+}
+
+//mainClassName = 'org.example.Main'
+repositories {
+    jcenter()
+}
+
+// In this section you declare the dependencies for your production and test code
+dependencies {
+    // The production code uses the SLF4J logging API at compile time
+//    compile 'org.slf4j:slf4j-api:1.7.21'
+//    testCompile 'junit:junit:4.12'
+}
+subprojects {
+    repositories {
+        jcenter()
+    }
+
+    task "create-dirs" << {
+        sourceSets*.java.srcDirs*.each { it.mkdirs() }
+        sourceSets*.resources.srcDirs*.each { it.mkdirs() }
+    }
+    //设置编译参数,compileJava是一个task,设置task的参数
+    compileJava {
+        options.compilerArgs << '-Xlint:unchecked'
+        options.encoding = 'UTF-8'
+    }
+}
